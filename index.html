@@ -90,7 +90,6 @@
       font-size: 12px;
       font-weight: 600;
     }
-
     /* Modal */
     .modal {
       position: fixed;
@@ -229,58 +228,49 @@
   <div class="container">
     <h1>Выберите способ оплаты</h1>
     <p class="sub">Нажмите на нужный вариант — мы покажем QR‑код, адрес и ссылку для открытия в кошельке.</p>
-
     <div class="grid">
       <button class="pay" data-name="USDT (BEP20)" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a" data-uri="binancechain:0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
         USDT <span class="badge">BEP20</span>
       </button>
-
       <button class="pay" data-name="ETH" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a" data-uri="ethereum:0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
         ETH
       </button>
-
       <button class="pay" data-name="BTC" data-address="1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik" data-uri="bitcoin:1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik">
         BTC
       </button>
-
       <button class="pay" data-name="USDT (TRC20)" data-address="TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3" data-uri="tron:TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3">
         USDT <span class="badge">TRC20</span>
       </button>
+      <button class="pay" data-name="MonoBank" data-address="https://send.monobank.ua/jar/3zABohEr77" data-uri="https://send.monobank.ua/jar/3zABohEr77">
+        MonoBank
+      </button>
     </div>
   </div>
-
   <!-- Модальное окно -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="m-title">
       <button class="close" id="close" aria-label="Закрыть">✕</button>
       <h2 id="m-title">Оплата</h2>
       <p class="net" id="m-net"></p>
-
       <div class="qr-wrap">
         <div id="qrcode" aria-label="QR-код для оплаты"></div>
       </div>
-
       <div class="address-box">
         <div class="addr-line">
           <div class="addr" id="addr"></div>
           <button class="btn" id="copy">Копировать</button>
         </div>
       </div>
-
       <div class="actions">
         <a class="btn primary" id="openWallet" href="#" target="_self" rel="noopener">Открыть в кошельке</a>
         <button class="btn" id="downloadPng">Скачать QR</button>
       </div>
-
       <div class="helper">Если кошелек не открылся, просто отсканируйте QR‑код или вставьте адрес вручную.</div>
     </div>
   </div>
-
   <div class="toast" id="toast">Скопировано</div>
-
   <!-- Библиотека генерации QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgI3IY3wZ8oet9C6rKMgZ7r3X3nY2cRPJbFf+Yj0M9rpqZT0b1r6yZ3Y0zQ6g7HcfDxHg6nZC9c0bofZ7G2+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
   <script>
     const modal = document.getElementById('modal');
     const closeBtn = document.getElementById('close');
@@ -292,22 +282,46 @@
     const netEl = document.getElementById('m-net');
     const toast = document.getElementById('toast');
     const downloadBtn = document.getElementById('downloadPng');
-
     let current = { name: '', address: '', uri: '' };
-
+    
     function showToast(text) {
       toast.textContent = text;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 1400);
     }
-
+    
+    async function copyToClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(addrEl);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand('copy');
+        sel.removeAllRanges();
+        return true;
+      }
+    }
+    
     function openModal(data) {
       current = data;
       titleEl.textContent = 'Оплата: ' + data.name;
-      netEl.textContent = data.uri.split(':')[0].toUpperCase() + ' • ' + data.address.slice(0, 6) + '...' + data.address.slice(-6);
+      
+      // Особый случай для MonoBank
+      if (data.name === "MonoBank") {
+        netEl.textContent = 'MonoBank • Банковская ссылка';
+        openWallet.textContent = 'Открыть в MonoBank';
+        openWallet.href = data.uri;
+      } else {
+        netEl.textContent = data.uri.split(':')[0].toUpperCase() + ' • ' + data.address.slice(0, 6) + '...' + data.address.slice(-6);
+        openWallet.textContent = 'Открыть в кошельке';
+        openWallet.href = data.uri;
+      }
+      
       addrEl.textContent = data.address;
-      openWallet.href = data.uri;
-
       qrcodeBox.innerHTML = '';
       new QRCode(qrcodeBox, {
         text: data.uri,
@@ -315,17 +329,22 @@
         height: 240,
         correctLevel: QRCode.CorrectLevel.M
       });
-
+      
+      // Автоматически копируем адрес в буфер обмена
+      copyToClipboard(data.address).then(() => {
+        showToast('Адрес скопирован');
+      });
+      
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
     }
-
+    
     function closeModal() {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
       qrcodeBox.innerHTML = '';
     }
-
+    
     document.querySelectorAll('.pay').forEach(btn => {
       btn.addEventListener('click', () => {
         const data = {
@@ -336,28 +355,18 @@
         openModal(data);
       });
     });
-
+    
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
     });
-
+    
     copyBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(current.address);
+      copyToClipboard(current.address).then(() => {
         showToast('Адрес скопирован');
-      } catch {
-        const sel = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(addrEl);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        document.execCommand('copy');
-        sel.removeAllRanges();
-        showToast('Адрес скопирован');
-      }
+      });
     });
-
+    
     downloadBtn.addEventListener('click', () => {
       const canvas = qrcodeBox.querySelector('canvas');
       if (!canvas) return;
