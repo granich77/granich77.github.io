@@ -1,3 +1,4 @@
+      
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -60,7 +61,7 @@
     @media (max-width: 560px) {
       .grid { grid-template-columns: 1fr; }
     }
-    button.pay {
+    .pay { /* Универсальный класс для кнопок и ссылок-кнопок */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -80,9 +81,10 @@
       transition: transform .08s ease, box-shadow .2s ease;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      text-decoration: none; /* Добавлено для ссылок */
     }
-    button.pay:active { transform: scale(0.98); }
-    button.pay span.badge {
+    button.pay:active, a.pay:active { transform: scale(0.98); }
+    .pay span.badge {
       background: rgba(59, 130, 246, .12);
       color: var(--brand);
       padding: 4px 8px;
@@ -241,9 +243,10 @@
       <button class="pay" data-name="USDT (TRC20)" data-address="TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3" data-uri="tron:TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3">
         USDT <span class="badge">TRC20</span>
       </button>
-      <button class="pay" data-name="MonoBank" data-address="https://send.monobank.ua/jar/3zABohEr77" data-uri="https://send.monobank.ua/jar/3zABohEr77">
-        MonoBank
-      </button>
+      <!-- НОВАЯ КНОПКА MONOBANK -->
+      <a href="https://send.monobank.ua/jar/3zABohEr77" class="pay" target="_blank" rel="noopener noreferrer">
+        MonoBank банка
+      </a>
     </div>
   </div>
   <!-- Модальное окно -->
@@ -283,45 +286,43 @@
     const toast = document.getElementById('toast');
     const downloadBtn = document.getElementById('downloadPng');
     let current = { name: '', address: '', uri: '' };
-    
+
     function showToast(text) {
       toast.textContent = text;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 1400);
     }
-    
-    async function copyToClipboard(text) {
+
+    // Функция для копирования текста
+    async function copyAddress(address) {
       try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch {
+        await navigator.clipboard.writeText(address);
+        showToast('Адрес скопирован');
+      } catch (err) {
+        console.warn('Async clipboard failed, using fallback.', err);
+        // Фоллбэк для старых браузеров или небезопасного контекста
         const sel = window.getSelection();
         const range = document.createRange();
+        // Важно: addrEl должен быть видимым и содержать нужный текст
         range.selectNodeContents(addrEl);
         sel.removeAllRanges();
         sel.addRange(range);
-        document.execCommand('copy');
+        try {
+          document.execCommand('copy');
+          showToast('Адрес скопирован');
+        } catch (e) {
+          showToast('Ошибка копирования');
+        }
         sel.removeAllRanges();
-        return true;
       }
     }
-    
-    function openModal(data) {
+
+    async function openModal(data) {
       current = data;
       titleEl.textContent = 'Оплата: ' + data.name;
-      
-      // Особый случай для MonoBank
-      if (data.name === "MonoBank") {
-        netEl.textContent = 'MonoBank • Банковская ссылка';
-        openWallet.textContent = 'Открыть в MonoBank';
-        openWallet.href = data.uri;
-      } else {
-        netEl.textContent = data.uri.split(':')[0].toUpperCase() + ' • ' + data.address.slice(0, 6) + '...' + data.address.slice(-6);
-        openWallet.textContent = 'Открыть в кошельке';
-        openWallet.href = data.uri;
-      }
-      
+      netEl.textContent = data.uri.split(':')[0].toUpperCase() + ' • ' + data.address.slice(0, 6) + '...' + data.address.slice(-6);
       addrEl.textContent = data.address;
+      openWallet.href = data.uri;
       qrcodeBox.innerHTML = '';
       new QRCode(qrcodeBox, {
         text: data.uri,
@@ -329,52 +330,54 @@
         height: 240,
         correctLevel: QRCode.CorrectLevel.M
       });
-      
-      // Автоматически копируем адрес в буфер обмена
-      copyToClipboard(data.address).then(() => {
-        showToast('Адрес скопирован');
-      });
-      
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
+
+      // ИЗМЕНЕНО: Автоматически копируем адрес при открытии модального окна
+      await copyAddress(data.address);
     }
-    
+
     function closeModal() {
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden', 'true');
       qrcodeBox.innerHTML = '';
     }
-    
+
     document.querySelectorAll('.pay').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const data = {
-          name: btn.dataset.name,
-          address: btn.dataset.address,
-          uri: btn.dataset.uri
-        };
-        openModal(data);
-      });
+      // Проверяем, что это кнопка для модального окна, а не простая ссылка
+      if (btn.tagName.toLowerCase() === 'button') {
+        btn.addEventListener('click', () => {
+          const data = {
+            name: btn.dataset.name,
+            address: btn.dataset.address,
+            uri: btn.dataset.uri
+          };
+          openModal(data);
+        });
+      }
     });
-    
+
     closeBtn.addEventListener('click', closeModal);
+
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
     });
-    
-    copyBtn.addEventListener('click', async () => {
-      copyToClipboard(current.address).then(() => {
-        showToast('Адрес скопирован');
-      });
+
+    // Ручное копирование по кнопке в модальном окне
+    copyBtn.addEventListener('click', () => {
+      copyAddress(current.address);
     });
-    
+
     downloadBtn.addEventListener('click', () => {
       const canvas = qrcodeBox.querySelector('canvas');
       if (!canvas) return;
       const link = document.createElement('a');
-      link.download = (current.name || 'qr') + '.png';
+      link.download = (current.name.replace(/\s/g, '_') || 'qr') + '.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     });
   </script>
 </body>
 </html>
+
+    
