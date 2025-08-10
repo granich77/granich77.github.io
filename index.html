@@ -61,7 +61,14 @@
     @media (max-width: 560px) {
       .grid { grid-template-columns: 1fr; }
     }
-    .pay { /* Универсальный класс для кнопок и ссылок-кнопок */
+    
+    /* NEW: Wrapper for button and its panel */
+    .pay-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pay {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -81,7 +88,9 @@
       transition: transform .08s ease, box-shadow .2s ease;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
-      text-decoration: none; /* Добавлено для ссылок */
+      text-decoration: none;
+      z-index: 2; /* To be above the panel */
+      position: relative;
     }
     button.pay:active, a.pay:active { transform: scale(0.98); }
     .pay span.badge {
@@ -92,56 +101,25 @@
       font-size: 12px;
       font-weight: 600;
     }
-    /* Modal */
-    .modal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,.5);
-      z-index: 9999;
-      padding: 16px;
-    }
-    .modal.open { display: flex; }
-    .sheet {
-      position: relative;
-      width: 100%;
-      max-width: 440px;
+
+    /* NEW: Styles for the dropdown address panel */
+    .address-panel {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 16px;
+      border-top: none;
+      border-radius: 0 0 14px 14px;
+      padding: 0 12px;
+      margin-top: -14px; /* Pull it up under the button */
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.35s ease;
+      z-index: 1;
     }
-    .sheet h2 {
-      font-size: 18px;
-      margin: 0 0 6px;
-      text-align: center;
-    }
-    .sheet p.net {
-      margin: 0 0 12px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .qr-wrap {
-      display: grid;
-      place-items: center;
-      padding: 12px;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0));
-      border: 1px dashed var(--border);
-      margin-bottom: 12px;
-    }
-    #qrcode {
-      width: 240px;
-      height: 240px;
-    }
-    .address-box {
-      display: grid;
-      gap: 8px;
-      margin: 8px 0 12px;
+    .address-panel.open {
+      max-height: 200px; /* Large enough to fit content */
+      opacity: 1;
+      padding: 22px 12px 12px; /* Top padding to clear button radius */
     }
     .addr-line {
       display: flex;
@@ -160,21 +138,13 @@
       word-break: break-all;
       user-select: all;
     }
-    .actions {
-      display: grid;
-      gap: 8px;
-      grid-template-columns: 1fr 1fr;
-    }
-    @media (max-width: 420px) {
-      .actions { grid-template-columns: 1fr; }
-    }
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px 14px;
-      border-radius: 12px;
+      padding: 10px 12px; /* Slightly smaller for inline use */
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--card);
       color: var(--text);
@@ -182,30 +152,10 @@
       text-decoration: none;
       cursor: pointer;
       touch-action: manipulation;
+      font-size: 14px;
     }
-    .btn.primary {
-      background: var(--brand);
-      border-color: var(--brand);
-      color: white;
-    }
-    .close {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 6px;
-      line-height: 1;
-    }
-    .helper {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 6px;
-    }
+
+    /* Toast notification */
     .toast {
       position: fixed;
       left: 50%;
@@ -219,6 +169,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity .25s ease, transform .25s ease;
+      z-index: 9999;
     }
     .toast.show {
       opacity: 1;
@@ -229,63 +180,69 @@
 <body>
   <div class="container">
     <h1>Выберите способ оплаты</h1>
-    <p class="sub">Нажмите на нужный вариант — мы покажем QR‑код, адрес и ссылку для открытия в кошельке.</p>
+    <p class="sub">Нажмите на крипто-валюту, чтобы увидеть адрес для перевода.</p>
     <div class="grid">
-      <button class="pay" data-name="USDT (BEP20)" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a" data-uri="binancechain:0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
-        USDT <span class="badge">BEP20</span>
-      </button>
-      <button class="pay" data-name="ETH" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a" data-uri="ethereum:0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
-        ETH
-      </button>
-      <button class="pay" data-name="BTC" data-address="1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik" data-uri="bitcoin:1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik">
-        BTC
-      </button>
-      <button class="pay" data-name="USDT (TRC20)" data-address="TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3" data-uri="tron:TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3">
-        USDT <span class="badge">TRC20</span>
-      </button>
-      <!-- НОВАЯ КНОПКА MONOBANK -->
+
+      <!-- NEW: Structure with pay-item wrapper -->
+      <div class="pay-item">
+        <button class="pay" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
+          USDT <span class="badge">BEP20</span>
+        </button>
+        <div class="address-panel">
+          <div class="addr-line">
+            <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
+            <button class="btn copy-btn">Копировать</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pay-item">
+        <button class="pay" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
+          ETH
+        </button>
+        <div class="address-panel">
+          <div class="addr-line">
+            <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
+            <button class="btn copy-btn">Копировать</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pay-item">
+        <button class="pay" data-address="1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik">
+          BTC
+        </button>
+        <div class="address-panel">
+          <div class="addr-line">
+            <div class="addr">1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik</div>
+            <button class="btn copy-btn">Копировать</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pay-item">
+        <button class="pay" data-address="TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3">
+          USDT <span class="badge">TRC20</span>
+        </button>
+        <div class="address-panel">
+          <div class="addr-line">
+            <div class="addr">TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3</div>
+            <button class="btn copy-btn">Копировать</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MonoBank link remains the same, but you can wrap it too for alignment if needed -->
       <a href="https://send.monobank.ua/jar/3zABohEr77" class="pay" target="_blank" rel="noopener noreferrer">
         MonoBank банка
       </a>
     </div>
   </div>
-  <!-- Модальное окно -->
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="m-title">
-      <button class="close" id="close" aria-label="Закрыть">✕</button>
-      <h2 id="m-title">Оплата</h2>
-      <p class="net" id="m-net"></p>
-      <div class="qr-wrap">
-        <div id="qrcode" aria-label="QR-код для оплаты"></div>
-      </div>
-      <div class="address-box">
-        <div class="addr-line">
-          <div class="addr" id="addr"></div>
-          <button class="btn" id="copy">Копировать</button>
-        </div>
-      </div>
-      <div class="actions">
-        <a class="btn primary" id="openWallet" href="#" target="_self" rel="noopener">Открыть в кошельке</a>
-        <button class="btn" id="downloadPng">Скачать QR</button>
-      </div>
-      <div class="helper">Если кошелек не открылся, просто отсканируйте QR‑код или вставьте адрес вручную.</div>
-    </div>
-  </div>
+  
   <div class="toast" id="toast">Скопировано</div>
-  <!-- Библиотека генерации QR -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgI3IY3wZ8oet9C6rKMgZ7r3X3nY2cRPJbFf+Yj0M9rpqZT0b1r6yZ3Y0zQ6g7HcfDxHg6nZC9c0bofZ7G2+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
   <script>
-    const modal = document.getElementById('modal');
-    const closeBtn = document.getElementById('close');
-    const qrcodeBox = document.getElementById('qrcode');
-    const addrEl = document.getElementById('addr');
-    const copyBtn = document.getElementById('copy');
-    const openWallet = document.getElementById('openWallet');
-    const titleEl = document.getElementById('m-title');
-    const netEl = document.getElementById('m-net');
     const toast = document.getElementById('toast');
-    const downloadBtn = document.getElementById('downloadPng');
-    let current = { name: '', address: '', uri: '' };
 
     function showToast(text) {
       toast.textContent = text;
@@ -293,91 +250,61 @@
       setTimeout(() => toast.classList.remove('show'), 1400);
     }
 
-    // Функция для копирования текста
-    async function copyAddress(address) {
+    async function copyTextToClipboard(text) {
       try {
-        await navigator.clipboard.writeText(address);
+        await navigator.clipboard.writeText(text);
         showToast('Адрес скопирован');
       } catch (err) {
-        console.warn('Async clipboard failed, using fallback.', err);
-        // Фоллбэк для старых браузеров или небезопасного контекста
-        const sel = window.getSelection();
-        const range = document.createRange();
-        // Важно: addrEl должен быть видимым и содержать нужный текст
-        range.selectNodeContents(addrEl);
-        sel.removeAllRanges();
-        sel.addRange(range);
+        console.warn('Clipboard API failed. Using fallback.', err);
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
         try {
           document.execCommand('copy');
           showToast('Адрес скопирован');
         } catch (e) {
           showToast('Ошибка копирования');
+          console.error('Fallback copy failed', e);
         }
-        sel.removeAllRanges();
+        document.body.removeChild(textArea);
       }
     }
 
-    async function openModal(data) {
-      current = data;
-      titleEl.textContent = 'Оплата: ' + data.name;
-      netEl.textContent = data.uri.split(':')[0].toUpperCase() + ' • ' + data.address.slice(0, 6) + '...' + data.address.slice(-6);
-      addrEl.textContent = data.address;
-      openWallet.href = data.uri;
-      qrcodeBox.innerHTML = '';
-      new QRCode(qrcodeBox, {
-        text: data.uri,
-        width: 240,
-        height: 240,
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      modal.classList.add('open');
-      modal.setAttribute('aria-hidden', 'false');
+    // Main logic for toggling panels
+    document.querySelectorAll('button.pay[data-address]').forEach(button => {
+      button.addEventListener('click', () => {
+        const parentItem = button.parentElement;
+        const panel = parentItem.querySelector('.address-panel');
+        const isAlreadyOpen = panel.classList.contains('open');
 
-      // ИЗМЕНЕНО: Автоматически копируем адрес при открытии модального окна
-      await copyAddress(data.address);
-    }
-
-    function closeModal() {
-      modal.classList.remove('open');
-      modal.setAttribute('aria-hidden', 'true');
-      qrcodeBox.innerHTML = '';
-    }
-
-    document.querySelectorAll('.pay').forEach(btn => {
-      // Проверяем, что это кнопка для модального окна, а не простая ссылка
-      if (btn.tagName.toLowerCase() === 'button') {
-        btn.addEventListener('click', () => {
-          const data = {
-            name: btn.dataset.name,
-            address: btn.dataset.address,
-            uri: btn.dataset.uri
-          };
-          openModal(data);
+        // Close all currently open panels
+        document.querySelectorAll('.address-panel.open').forEach(openPanel => {
+          openPanel.classList.remove('open');
         });
+
+        // If the clicked panel was not already open, open it.
+        if (!isAlreadyOpen) {
+          panel.classList.add('open');
+        }
+      });
+    });
+
+    // Event delegation for all copy buttons
+    document.querySelector('.grid').addEventListener('click', (event) => {
+      // Check if a copy button inside a panel was clicked
+      if (event.target.classList.contains('copy-btn')) {
+        const addrLine = event.target.closest('.addr-line');
+        if (addrLine) {
+          const address = addrLine.querySelector('.addr').textContent;
+          copyTextToClipboard(address);
+        }
       }
     });
 
-    closeBtn.addEventListener('click', closeModal);
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    // Ручное копирование по кнопке в модальном окне
-    copyBtn.addEventListener('click', () => {
-      copyAddress(current.address);
-    });
-
-    downloadBtn.addEventListener('click', () => {
-      const canvas = qrcodeBox.querySelector('canvas');
-      if (!canvas) return;
-      const link = document.createElement('a');
-      link.download = (current.name.replace(/\s/g, '_') || 'qr') + '.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
   </script>
 </body>
 </html>
-
-    
