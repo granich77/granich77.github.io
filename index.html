@@ -1,4 +1,3 @@
-      
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -62,7 +61,6 @@
       .grid { grid-template-columns: 1fr; }
     }
     
-    /* NEW: Wrapper for button and its panel */
     .pay-item {
       display: flex;
       flex-direction: column;
@@ -85,14 +83,28 @@
       letter-spacing: 0.2px;
       cursor: pointer;
       box-shadow: var(--shadow);
-      transition: transform .08s ease, box-shadow .2s ease;
-      touch-action: manipulation;
+      transition: transform .08s ease, box-shadow .2s ease, border-radius .3s ease;
       -webkit-tap-highlight-color: transparent;
       text-decoration: none;
-      z-index: 2; /* To be above the panel */
+      z-index: 2;
       position: relative;
+      /* ИЗМЕНЕНИЕ ДЛЯ МОБИЛЬНЫХ: Улучшает отзывчивость на касание */
+      touch-action: manipulation;
     }
     button.pay:active, a.pay:active { transform: scale(0.98); }
+    
+    /* Скругляем нижние углы кнопки, только когда панель закрыта */
+    .pay-item .pay {
+        border-bottom-left-radius: 14px;
+        border-bottom-right-radius: 14px;
+    }
+    /* Убираем скругление нижних углов, когда панель открыта */
+    .pay-item .address-panel.open + .pay, /* Fallback для старых браузеров */
+    .pay-item .pay:has(+ .address-panel.open) { /* Современный способ */
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    
     .pay span.badge {
       background: rgba(59, 130, 246, .12);
       color: var(--brand);
@@ -102,25 +114,27 @@
       font-weight: 600;
     }
 
-    /* NEW: Styles for the dropdown address panel */
+    /* ИЗМЕНЕНИЕ ДЛЯ МОБИЛЬНЫХ: Новая, более надежная анимация */
     .address-panel {
+      display: grid;
+      grid-template-rows: 0fr; /* Начинаем со свернутого состояния */
+      transition: grid-template-rows 0.35s ease-out;
       background: var(--card);
-      border: 1px solid var(--border);
-      border-top: none;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
       border-radius: 0 0 14px 14px;
-      padding: 0 12px;
-      margin-top: -14px; /* Pull it up under the button */
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.35s ease, opacity 0.3s ease, padding 0.35s ease;
       z-index: 1;
     }
     .address-panel.open {
-      max-height: 200px; /* Large enough to fit content */
-      opacity: 1;
-      padding: 22px 12px 12px; /* Top padding to clear button radius */
+      grid-template-rows: 1fr; /* Разворачиваем до полного размера содержимого */
     }
+    /* Внутренний контейнер для правильной анимации */
+    .address-panel > .panel-content {
+        overflow: hidden;
+        padding: 12px;
+    }
+    
     .addr-line {
       display: flex;
       align-items: center;
@@ -143,7 +157,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 10px 12px; /* Slightly smaller for inline use */
+      padding: 10px 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--card);
@@ -182,16 +196,17 @@
     <h1>Выберите способ оплаты</h1>
     <p class="sub">Нажмите на крипто-валюту, чтобы увидеть адрес для перевода.</p>
     <div class="grid">
-
-      <!-- NEW: Structure with pay-item wrapper -->
+      <!-- Структура HTML изменена для лучшей анимации -->
       <div class="pay-item">
         <button class="pay" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
           USDT <span class="badge">BEP20</span>
         </button>
         <div class="address-panel">
-          <div class="addr-line">
-            <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
-            <button class="btn copy-btn">Копировать</button>
+          <div class="panel-content">
+            <div class="addr-line">
+              <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
+              <button class="btn copy-btn">Копировать</button>
+            </div>
           </div>
         </div>
       </div>
@@ -201,9 +216,11 @@
           ETH
         </button>
         <div class="address-panel">
-          <div class="addr-line">
-            <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
-            <button class="btn copy-btn">Копировать</button>
+          <div class="panel-content">
+            <div class="addr-line">
+              <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
+              <button class="btn copy-btn">Копировать</button>
+            </div>
           </div>
         </div>
       </div>
@@ -213,9 +230,11 @@
           BTC
         </button>
         <div class="address-panel">
-          <div class="addr-line">
-            <div class="addr">1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik</div>
-            <button class="btn copy-btn">Копировать</button>
+          <div class="panel-content">
+            <div class="addr-line">
+              <div class="addr">1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik</div>
+              <button class="btn copy-btn">Копировать</button>
+            </div>
           </div>
         </div>
       </div>
@@ -225,14 +244,15 @@
           USDT <span class="badge">TRC20</span>
         </button>
         <div class="address-panel">
-          <div class="addr-line">
-            <div class="addr">TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3</div>
-            <button class="btn copy-btn">Копировать</button>
+          <div class="panel-content">
+            <div class="addr-line">
+              <div class="addr">TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3</div>
+              <button class="btn copy-btn">Копировать</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- MonoBank link remains the same, but you can wrap it too for alignment if needed -->
       <a href="https://send.monobank.ua/jar/3zABohEr77" class="pay" target="_blank" rel="noopener noreferrer">
         MonoBank банка
       </a>
@@ -255,7 +275,6 @@
         await navigator.clipboard.writeText(text);
         showToast('Адрес скопирован');
       } catch (err) {
-        console.warn('Clipboard API failed. Using fallback.', err);
         const textArea = document.createElement("textarea");
         textArea.value = text;
         textArea.style.position = "fixed";
@@ -268,41 +287,43 @@
           showToast('Адрес скопирован');
         } catch (e) {
           showToast('Ошибка копирования');
-          console.error('Fallback copy failed', e);
         }
         document.body.removeChild(textArea);
       }
     }
 
-    // Main logic for toggling panels
-    document.querySelectorAll('button.pay[data-address]').forEach(button => {
-      button.addEventListener('click', () => {
-        const parentItem = button.parentElement;
-        const panel = parentItem.querySelector('.address-panel');
-        const isAlreadyOpen = panel.classList.contains('open');
+    // ИЗМЕНЕНИЕ ДЛЯ МОБИЛЬНЫХ: Упрощенная и более надежная логика
+    const payItems = document.querySelectorAll('.pay-item');
 
-        // Close all currently open panels
-        document.querySelectorAll('.address-panel.open').forEach(openPanel => {
-          openPanel.classList.remove('open');
-        });
+    payItems.forEach(item => {
+        const button = item.querySelector('button.pay');
+        const panel = item.querySelector('.address-panel');
 
-        // If the clicked panel was not already open, open it.
-        if (!isAlreadyOpen) {
-          panel.classList.add('open');
+        if (button && panel) { // Убедимся, что у элемента есть и кнопка, и панель
+            button.addEventListener('click', () => {
+                const isCurrentlyOpen = panel.classList.contains('open');
+
+                // Сначала закрываем все открытые панели
+                document.querySelectorAll('.address-panel.open').forEach(openPanel => {
+                    openPanel.classList.remove('open');
+                });
+
+                // Если панель, на которую мы нажали, не была открыта, открываем её
+                if (!isCurrentlyOpen) {
+                    panel.classList.add('open');
+                }
+            });
         }
-      });
     });
 
-    // Event delegation for all copy buttons
-    document.querySelector('.grid').addEventListener('click', (event) => {
-      // Check if a copy button inside a panel was clicked
-      if (event.target.classList.contains('copy-btn')) {
-        const addrLine = event.target.closest('.addr-line');
-        if (addrLine) {
-          const address = addrLine.querySelector('.addr').textContent;
-          copyTextToClipboard(address);
-        }
-      }
+
+    // Обработка кнопок копирования
+    document.querySelectorAll('.copy-btn').forEach(copyButton => {
+        copyButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Останавливаем "всплытие" события, чтобы не закрылась панель
+            const address = copyButton.previousElementSibling.textContent;
+            copyTextToClipboard(address);
+        });
     });
 
   </script>
