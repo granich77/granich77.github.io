@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎂 It's My Birthday!</title>
+<title>🎂 Happy Birthday!</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
@@ -12,7 +12,7 @@
     --card:rgba(255,255,255,.05);
     --border:rgba(255,255,255,.1);
     --text:#f5f5f7;
-    --accent:linear-gradient(135deg,#6e45e2,#88d3ce);
+    --accent:#6e45e2;
   }
   body{
     font-family:'Inter',sans-serif;
@@ -20,79 +20,92 @@
     color:var(--text);
     overflow-x:hidden;
     text-align:center;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* VIDEO OVERLAY */
+  #videoOverlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 2000;
+    display: none; /* Сховано за замовчуванням */
+    align-items: center;
+    justify-content: center;
+  }
+  #videoOverlay video {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  #closeVideo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 2100;
   }
 
   .bg-blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
   .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.3;width:500px;height:500px}
-  .blob-1{background:#6e45e2;top:-10%;left:-10%}
+  .blob-1{background:var(--accent);top:-10%;left:-10%}
   .blob-2{background:#88d3ce;bottom:-10%;right:-10%}
 
   .wrapper{position:relative;z-index:2;max-width:600px;margin:0 auto;padding:60px 20px}
 
-  /* PHOTO STYLE */
   .photo-wrap{
-    position: relative;
-    width:220px;height:220px;margin:0 auto 30px;
-    border-radius:50%;border:3px solid #6e45e2;
-    padding:5px;background:var(--bg);
-    box-shadow: 0 0 30px rgba(110,69,226,0.4);
+    width:200px;height:200px;margin:0 auto 20px;
+    border-radius:50%;border:3px solid var(--accent);
+    padding:5px;box-shadow: 0 0 30px rgba(110,69,226,0.3);
   }
-  .photo-wrap img{
-    width:100%;height:100%;border-radius:50%;object-fit:cover;
-    display:block;background:#222;
-  }
+  .photo-wrap img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 
-  .age-number{font-size:100px;font-weight:900;line-height:1;margin-top: 10px;}
-  .age-label{text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.5);margin-bottom:50px}
+  .age-number{font-size:100px;font-weight:900;line-height:1}
+  .age-label{text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.5);margin-bottom:40px}
 
-  /* CARDS */
   .cards-grid{display:flex;flex-direction:column;gap:12px}
   .pay-card{
     background:var(--card);border:1px solid var(--border);border-radius:18px;
     padding:18px 20px;display:flex;align-items:center;gap:15px;cursor:pointer;
-    transition:0.3s cubic-bezier(.175,.885,.32,1.275);backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
+    transition:0.3s;backdrop-filter:blur(10px);
   }
-  .pay-card:active{transform:scale(0.96)}
-  .pay-icon{font-size:1.5rem;width:40px;display:flex;justify-content:center}
+  .pay-card:active{transform:scale(0.97)}
   .pay-info{text-align:left;flex:1}
-  .pay-name{font-weight:700;font-size:0.9rem;margin-bottom: 2px}
+  .pay-name{font-weight:700;font-size:0.9rem}
   .pay-address{font-family:monospace;font-size:0.7rem;color:rgba(255,255,255,0.5);word-break:break-all}
 
-  /* TOAST */
   .toast{
     position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
-    background:#6e45e2;padding:12px 24px;border-radius:50px;transition:0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    opacity:0;z-index:1000;white-space: nowrap;font-weight: 600;
+    background:var(--accent);padding:12px 24px;border-radius:50px;transition:0.4s;
+    opacity:0;z-index:1000;font-weight: 600;
   }
   .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-
-  /* SOUND BUTTON FOR IOS */
-  #playBtn {
-    position: fixed; top: 20px; right: 20px; z-index: 100;
-    background: rgba(255,255,255,0.1); border: 1px solid var(--border);
-    color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer;
-    font-size: 11px; backdrop-filter: blur(10px);
-  }
 </style>
 </head>
-<body onclick="initAudio()">
+<body onclick="startAmbientMusic()">
 
-<audio id="bgMusic" loop preload="auto">
+<audio id="bgMusic" loop>
   <source src="dimka.mp3" type="audio/mpeg">
 </audio>
 
-<button id="playBtn">🔊 Музика</button>
+<div id="videoOverlay">
+  <button id="closeVideo" onclick="stopSurpriseVideo()">Закрити ×</button>
+  <video id="surpriseVideo" playsinline>
+    <source src="dimjon.mp4" type="video/mp4">
+  </video>
+</div>
 
 <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
 
 <div class="wrapper">
-  <h1 style="font-weight: 900; margin-bottom: 20px;">HAPPY BIRTHDAY!</h1>
+  <h1 style="margin-bottom: 20px;">It's My Birthday!</h1>
   
   <div class="photo-wrap">
-    <img src="dimon.jpg" alt="Дмитро" onerror="this.src='https://via.placeholder.com/220/222/6e45e2?text=Photo+Missing'">
+    <img src="dimon.jpg" alt="Дмитро" onerror="this.src='https://via.placeholder.com/200/222/6e45e2?text=Dimon'">
   </div>
 
   <div class="age-display">
@@ -101,44 +114,28 @@
   </div>
 
   <div class="cards-grid">
-    <div class="pay-card" onclick="copy('4441 1110 3301 8767', 'Monobank')">
-      <div class="pay-icon">💳</div>
+    <div class="pay-card" onclick="handleCardClick('4441 1110 3301 8767', 'Monobank')">
       <div class="pay-info">
         <div class="pay-name">Monobank 🇺🇦</div>
         <div class="pay-address">4441 1110 3301 8767</div>
       </div>
+      <div>📋</div>
     </div>
 
-    <div class="pay-card" onclick="copy('TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc', 'USDT TRC20')">
-      <div class="pay-icon" style="color:#26a17b">₮</div>
+    <div class="pay-card" onclick="handleCardClick('TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc', 'USDT TRC20')">
       <div class="pay-info">
-        <div class="pay-name">USDT <span style="font-size:10px; opacity:0.6">TRC-20</span></div>
+        <div class="pay-name">USDT TRC-20</div>
         <div class="pay-address">TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc</div>
       </div>
+      <div>📋</div>
     </div>
 
-    <div class="pay-card" onclick="copy('bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5', 'BTC')">
-      <div class="pay-icon" style="color:#f7931a">₿</div>
+    <div class="pay-card" onclick="handleCardClick('bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5', 'BTC')">
       <div class="pay-info">
         <div class="pay-name">Bitcoin</div>
         <div class="pay-address">bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5</div>
       </div>
-    </div>
-
-    <div class="pay-card" onclick="copy('0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b', 'USDT BEP20')">
-      <div class="pay-icon" style="color:#f3ba2f">🟡</div>
-      <div class="pay-info">
-        <div class="pay-name">USDT <span style="font-size:10px; opacity:0.6">BEP-20</span></div>
-        <div class="pay-address">0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b</div>
-      </div>
-    </div>
-
-    <div class="pay-card" onclick="copy('rf7Qc2jASKkWzgmrkrn6115h7LRqfDMwfJ', 'XRP')">
-      <div class="pay-icon">🌀</div>
-      <div class="pay-info">
-        <div class="pay-name">Ripple (XRP)</div>
-        <div class="pay-address">rf7Qc2jASKkWzgmrkrn6115h7LRqfDMwfJ</div>
-      </div>
+      <div>📋</div>
     </div>
   </div>
 </div>
@@ -146,46 +143,58 @@
 <div class="toast" id="toast">✅ Скопійовано!</div>
 
 <script>
-const audio = document.getElementById('bgMusic');
-const playBtn = document.getElementById('playBtn');
+const bgMusic = document.getElementById('bgMusic');
+const videoOverlay = document.getElementById('videoOverlay');
+const surpriseVideo = document.getElementById('surpriseVideo');
+const toast = document.getElementById('toast');
 
-// Функція ініціалізації звуку (важливо для iOS)
-function initAudio() {
-  if (audio.paused) {
-    audio.play();
-    playBtn.textContent = "⏸ Пауза";
-  } else {
-    // Якщо ти хочеш, щоб клік працював як перемикач:
-    // audio.pause();
-    // playBtn.textContent = "🔊 Грати";
-  }
+// Запуск фонової музики при першому кліку
+function startAmbientMusic() {
+  if (bgMusic.paused) bgMusic.play();
 }
 
-// Окремий обробник для кнопки
-playBtn.addEventListener('click', (e) => {
-  e.stopPropagation(); // щоб не спрацював body.onclick
-  if (audio.paused) {
-    audio.play();
-    playBtn.textContent = "⏸ Пауза";
-  } else {
-    audio.pause();
-    playBtn.textContent = "🔊 Грати";
-  }
-});
-
-function copy(text, name) {
-  // Видаляємо пробіли з номера картки перед копіюванням
+// Головна функція при натисканні на картку
+function handleCardClick(text, name) {
+  // 1. Копіюємо текст
   const cleanText = text.replace(/\s+/g, '');
-  navigator.clipboard.writeText(cleanText).then(() => {
-    const t = document.getElementById('toast');
-    t.textContent = `✅ ${name} скопійовано!`;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
-  });
+  navigator.clipboard.writeText(cleanText);
   
-  // Додаткова спроба запустити звук при кліку на картку (для Safari)
-  if (audio.paused) audio.play();
+  // 2. Показуємо повідомлення
+  toast.textContent = `✅ ${name} скопійовано!`;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+
+  // 3. Запускаємо таймер на 5 секунд для відео
+  setTimeout(() => {
+    startSurpriseVideo();
+  }, 5000);
 }
+
+function startSurpriseVideo() {
+  // Ставимо музику на паузу
+  bgMusic.pause();
+  
+  // Показуємо оверлей і вмикаємо відео
+  videoOverlay.style.display = 'flex';
+  surpriseVideo.play();
+}
+
+function stopSurpriseVideo() {
+  // Зупиняємо відео
+  surpriseVideo.pause();
+  surpriseVideo.currentTime = 0;
+  
+  // Ховаємо оверлей
+  videoOverlay.style.display = 'none';
+  
+  // Відновлюємо музику
+  bgMusic.play();
+}
+
+// Якщо відео закінчилося саме — теж закриваємо
+surpriseVideo.onended = function() {
+  stopSurpriseVideo();
+};
 </script>
 
 </body>
