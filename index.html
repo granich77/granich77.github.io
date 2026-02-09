@@ -4,143 +4,136 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎂 It's My Birthday!</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
     --bg:#0a0a0f;
     --card:rgba(255,255,255,.05);
-    --card-hover:rgba(255,255,255,.09);
-    --border:rgba(255,255,255,.08);
-    --border-hover:rgba(255,255,255,.15);
+    --border:rgba(255,255,255,.1);
     --text:#f5f5f7;
-    --text-secondary:rgba(255,255,255,.55);
     --accent:linear-gradient(135deg,#6e45e2,#88d3ce);
-    --glow:rgba(110,69,226,.35);
   }
   body{
     font-family:'Inter',sans-serif;
     background:var(--bg);
     color:var(--text);
     overflow-x:hidden;
-    -webkit-font-smoothing:antialiased;
+    text-align:center;
   }
 
-  /* ====== BACKGROUND ====== */
+  /* Сховане відео (якщо використовуєш mp4 як аудіо) */
+  #bgVideo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .bg-blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-  .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.4;animation:blobMove 20s ease-in-out infinite alternate}
-  .blob-1{width:600px;height:600px;background:#6e45e2;top:-10%;left:-10%}
-  .blob-2{width:500px;height:500px;background:#88d3ce;bottom:-10%;right:-10%}
-  @keyframes blobMove{0%{transform:translate(0,0)} 100%{transform:translate(40px,20px)}}
+  .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.3;width:500px;height:500px}
+  .blob-1{background:#6e45e2;top:-10%;left:-10%}
+  .blob-2{background:#88d3ce;bottom:-10%;right:-10%}
 
-  #confettiCanvas{position:fixed;inset:0;z-index:1;pointer-events:none}
-  .wrapper{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:60px 24px}
+  .wrapper{position:relative;z-index:2;max-width:600px;margin:0 auto;padding:40px 20px}
 
-  /* ====== HERO ====== */
-  .hero{text-align:center;margin-bottom:48px;animation:fadeUp .8s ease-out}
-  .hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;background:rgba(110,69,226,.15);color:#a78bfa;font-size:13px;font-weight:600;margin-bottom:24px}
-  .hero h1{font-size:clamp(40px,8vw,64px);font-weight:900;background:linear-gradient(135deg,#fff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero h1{font-size:3rem;font-weight:900;margin-bottom:30px;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-  /* ====== PHOTO ====== */
-  .photo-container{
-    position:relative;width:200px;height:200px;margin:0 auto 24px;
-    border-radius:50%;border:2px solid var(--border);overflow:hidden;
-    box-shadow:0 0 40px rgba(0,0,0,0.5);
+  /* PHOTO */
+  .photo-wrap{
+    width:220px;height:220px;margin:0 auto 30px;
+    border-radius:50%;border:3px solid #6e45e2;
+    padding:5px;background:var(--bg);
+    box-shadow: 0 0 30px rgba(110,69,226,0.4);
   }
-  .photo-container img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo-wrap img{
+    width:100%;height:100%;border-radius:50%;object-fit:cover;
+    display:block;background:#222; /* фон поки вантажиться фото */
+  }
 
-  /* ====== AGE ====== */
-  .age-display{text-align:center;margin-bottom:64px}
-  .age-number{font-size:120px;font-weight:900;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
-  .age-label{color:var(--text-secondary);letter-spacing:2px;text-transform:uppercase}
+  .age-number{font-size:100px;font-weight:900;line-height:1}
+  .age-label{text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.5);margin-bottom:50px}
 
-  /* ====== CARDS ====== */
-  .cards-grid{display:flex;flex-direction:column;gap:12px}
+  /* CARDS */
+  .cards-grid{display:flex;flex-direction:column;gap:15px}
   .pay-card{
-    background:var(--card);border:1px solid var(--border);border-radius:20px;
-    padding:18px 24px;display:flex;align-items:center;gap:16px;cursor:pointer;
-    transition:0.3s cubic-bezier(.175,.885,.32,1.275);backdrop-filter:blur(20px);
+    background:var(--card);border:1px solid var(--border);border-radius:18px;
+    padding:15px 20px;display:flex;align-items:center;gap:15px;cursor:pointer;
+    transition:0.3s;backdrop-filter:blur(10px);
   }
-  .pay-card:hover{transform:translateY(-3px);background:var(--card-hover);border-color:var(--border-hover);box-shadow:0 10px 30px var(--glow)}
-  .pay-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold}
-  .pay-info{flex:1;min-width:0}
-  .pay-name{font-size:15px;font-weight:600;margin-bottom:4px}
-  .pay-network{font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.1);margin-left:8px}
-  .pay-address{font-size:12px;color:var(--text-secondary);word-break:break-all;font-family:monospace}
-  
-  /* Crypto Colors */
-  .usdt-trc{color:#26a17b}.btc{color:#f7931a}.usdt-bnb{color:#f3ba2f}.xrp{color:#23292f;background:#fff !important}.mono{color:#fff}
+  .pay-card:hover{transform:translateY(-3px);border-color:#6e45e2;background:rgba(255,255,255,0.08)}
+  .pay-icon{font-size:1.5rem;width:40px}
+  .pay-info{text-align:left;flex:1}
+  .pay-name{font-weight:700;font-size:0.9rem}
+  .pay-address{font-family:monospace;font-size:0.75rem;color:rgba(255,255,255,0.6);word-break:break-all}
 
   .toast{
-    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
-    background:#1e1e23;padding:12px 24px;border-radius:12px;opacity:0;transition:0.4s;z-index:1000;
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);
+    background:#6e45e2;padding:10px 25px;border-radius:50px;transition:0.4s;opacity:0;
   }
   .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-
-  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<audio id="bgMusic" loop>
-  <source src="dimka.mp3" type="audio/mpeg">
-</audio>
+<video id="bgVideo" loop>
+  <source src="dimka.mp4" type="video/mp4">
+</video>
 
 <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
-<canvas id="confettiCanvas"></canvas>
 
 <div class="wrapper">
-  <section class="hero">
-    <div class="hero-badge">🎉 TODAY IS THE DAY</div>
+  <div class="hero">
     <h1>It's My Birthday!</h1>
-  </section>
+  </div>
 
-  <div class="photo-container">
-    <img src="dimon.jpg" alt="Dimon">
+  <div class="photo-wrap">
+    <img src="dimon.jpg" alt="Дмитро" onerror="this.src='https://via.placeholder.com/220?text=No+Photo'">
   </div>
 
   <div class="age-display">
     <div class="age-number">26</div>
-    <div class="age-label">років виповнилось!</div>
+    <div class="age-label">років!</div>
   </div>
 
   <div class="cards-grid">
-    <div class="pay-card" onclick="copy('4441 1110 3301 8767', 'Monobank')">
-      <div class="pay-icon mono" style="background: #333">💳</div>
+    <div class="pay-card" onclick="copy('4441111033018767', 'Monobank')">
+      <div class="pay-icon">💳</div>
       <div class="pay-info">
-        <div class="pay-name">Monobank 🇺🇦</div>
+        <div class="pay-name">Monobank</div>
         <div class="pay-address">4441 1110 3301 8767</div>
       </div>
     </div>
 
     <div class="pay-card" onclick="copy('TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc', 'USDT TRC20')">
-      <div class="pay-icon usdt-trc" style="background: rgba(38,161,123,0.1)">₮</div>
+      <div class="pay-icon">₮</div>
       <div class="pay-info">
-        <div class="pay-name">USDT <span class="pay-network">TRC-20</span></div>
+        <div class="pay-name">USDT TRC-20</div>
         <div class="pay-address">TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc</div>
       </div>
     </div>
 
-    <div class="pay-card" onclick="copy('bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5', 'Bitcoin')">
-      <div class="pay-icon btc" style="background: rgba(247,147,26,0.1)">₿</div>
+    <div class="pay-card" onclick="copy('bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5', 'BTC')">
+      <div class="pay-icon">₿</div>
       <div class="pay-info">
-        <div class="pay-name">Bitcoin <span class="pay-network">BTC</span></div>
+        <div class="pay-name">Bitcoin</div>
         <div class="pay-address">bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5</div>
       </div>
     </div>
 
     <div class="pay-card" onclick="copy('0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b', 'USDT BEP20')">
-      <div class="pay-icon usdt-bnb" style="background: rgba(243,186,47,0.1)">₮</div>
+      <div class="pay-icon">🟡</div>
       <div class="pay-info">
-        <div class="pay-name">USDT <span class="pay-network">BNB / BEP-20</span></div>
+        <div class="pay-name">USDT BEP-20 (BNB)</div>
         <div class="pay-address">0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b</div>
       </div>
     </div>
 
-    <div class="pay-card" onclick="copy('rf7Qc2jASKkWzgmrkrn6115h7LRqfDMwfJ', 'Ripple')">
-      <div class="pay-icon xrp">✕</div>
+    <div class="pay-card" onclick="copy('rf7Qc2jASKkWzgmrkrn6115h7LRqfDMwfJ', 'XRP')">
+      <div class="pay-icon">🌀</div>
       <div class="pay-info">
-        <div class="pay-name">Ripple <span class="pay-network">XRP</span></div>
+        <div class="pay-name">Ripple (XRP)</div>
         <div class="pay-address">rf7Qc2jASKkWzgmrkrn6115h7LRqfDMwfJ</div>
       </div>
     </div>
@@ -150,48 +143,19 @@
 <div class="toast" id="toast">✅ Скопійовано!</div>
 
 <script>
-// Музика при першому кліку
+// Запуск mp4 при кліку
 document.addEventListener('click', () => {
-  const audio = document.getElementById('bgMusic');
-  if(audio.paused) audio.play();
+  const video = document.getElementById('bgVideo');
+  if(video.paused) video.play();
 }, { once: true });
 
-// Копіювання
 function copy(text, name) {
-  navigator.clipboard.writeText(text.replace(/\s/g, ''));
+  navigator.clipboard.writeText(text);
   const t = document.getElementById('toast');
   t.textContent = `✅ ${name} скопійовано!`;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
-
-// Конфетті (простий запуск)
-const canvas = document.getElementById('confettiCanvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize); resize();
-
-class P {
-  constructor() {
-    this.x = canvas.width/2; this.y = canvas.height/2;
-    this.s = Math.random()*5+2;
-    this.vx = (Math.random()-0.5)*10; this.vy = Math.random()*-15-5;
-    this.op = 1; this.c = `hsl(${Math.random()*360}, 70%, 60%)`;
-  }
-  draw() {
-    this.vy += 0.2; this.x += this.vx; this.y += this.vy; this.op -= 0.01;
-    ctx.globalAlpha = this.op; ctx.fillStyle = this.c;
-    ctx.fillRect(this.x, this.y, this.s, this.s);
-  }
-}
-function loop() {
-  ctx.clearRect(0,0,canvas.width, canvas.height);
-  particles.forEach((p,i) => { p.draw(); if(p.op <= 0) particles.splice(i,1); });
-  requestAnimationFrame(loop);
-}
-loop();
-setInterval(() => { if(particles.length < 50) for(let i=0; i<20; i++) particles.push(new P()); }, 3000);
 </script>
 
 </body>
