@@ -1,325 +1,198 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Выберите способ оплаты</title>
-  <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #101828;
-      --muted: #667085;
-      --brand: #3b82f6;
-      --border: #e4e7ec;
-      --shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0f14;
-        --card: #101418;
-        --text: #e5e7eb;
-        --muted: #98a2b3;
-        --brand: #60a5fa;
-        --border: #20252b;
-        --shadow: 0 6px 24px rgba(0,0,0,.6);
-      }
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    .container {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 16px clamp(12px, 4vw, 24px) calc(16px + env(safe-area-inset-right));
-      padding-left: calc(16px + env(safe-area-inset-left));
-    }
-    h1 {
-      text-align: center;
-      font-size: clamp(20px, 2.8vw, 28px);
-      margin: 8px 0 6px;
-    }
-    p.sub {
-      text-align: center;
-      color: var(--muted);
-      margin: 0 0 16px;
-      font-size: 14px;
-    }
-    .grid {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(2, 1fr);
-    }
-    @media (max-width: 560px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-    
-    .pay-item {
-      display: flex;
-      flex-direction: column;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎂 It's My Birthday!</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0a0f;
+    --card:rgba(255,255,255,.05);
+    --card-hover:rgba(255,255,255,.09);
+    --border:rgba(255,255,255,.08);
+    --border-hover:rgba(255,255,255,.15);
+    --text:#f5f5f7;
+    --text-secondary:rgba(255,255,255,.55);
+    --accent:linear-gradient(135deg,#6e45e2,#88d3ce);
+    --glow:rgba(110,69,226,.35);
+  }
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
 
-    .pay {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      min-height: 56px;
-      padding: 12px 16px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: 0.2px;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: transform .08s ease, box-shadow .2s ease, border-radius .2s ease;
-      -webkit-tap-highlight-color: transparent;
-      text-decoration: none;
-      z-index: 2;
-      position: relative;
-      touch-action: manipulation;
-    }
-    button.pay:active, a.pay:active { transform: scale(0.98); }
-    
-    /* ИЗМЕНЕНИЕ ДЛЯ iOS: Управляем скруглением через JS-класс */
-    .pay-item.is-open .pay {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-    
-    .pay span.badge {
-      background: rgba(59, 130, 246, .12);
-      color: var(--brand);
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    
-    .address-panel {
-      display: grid;
-      grid-template-rows: 0fr; /* Свернутое состояние */
-      transition: grid-template-rows 0.35s ease-out;
-      background: var(--card);
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      border-radius: 0 0 14px 14px;
-      z-index: 1;
-    }
-    .address-panel.open {
-      grid-template-rows: 1fr; /* Развернутое состояние */
-    }
-    .address-panel > .panel-content {
-        overflow: hidden;
-        padding: 12px;
-    }
-    
-    .addr-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      overflow: hidden;
-    }
-    .addr {
-      flex: 1;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 14px;
-      word-break: break-all;
-      user-select: all;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-weight: 700;
-      text-decoration: none;
-      cursor: pointer;
-      touch-action: manipulation;
-      font-size: 14px;
-    }
+  /* ====== BACKGROUND ====== */
+  .bg-blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.4;animation:blobMove 20s ease-in-out infinite alternate}
+  .blob-1{width:600px;height:600px;background:#6e45e2;top:-10%;left:-10%}
+  .blob-2{width:500px;height:500px;background:#88d3ce;bottom:-10%;right:-10%}
+  @keyframes blobMove{0%{transform:translate(0,0)} 100%{transform:translate(40px,20px)}}
 
-    .toast {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: calc(20px + env(safe-area-inset-bottom));
-      background: rgba(17, 24, 39, .9);
-      color: white;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size: 14px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .25s ease, transform .25s ease;
-      z-index: 9999;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, -6px);
-    }
-  </style>
+  #confettiCanvas{position:fixed;inset:0;z-index:1;pointer-events:none}
+  .wrapper{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:60px 24px}
+
+  /* ====== HERO ====== */
+  .hero{text-align:center;margin-bottom:48px;animation:fadeUp .8s ease-out}
+  .hero-badge{display:inline-block;padding:6px 18px;border-radius:100px;background:rgba(110,69,226,.15);color:#a78bfa;font-size:13px;font-weight:600;margin-bottom:24px}
+  .hero h1{font-size:clamp(40px,8vw,64px);font-weight:900;background:linear-gradient(135deg,#fff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* ====== PHOTO ====== */
+  .photo-container{
+    position:relative;width:200px;height:200px;margin:0 auto 24px;
+    border-radius:50%;border:2px solid var(--border);overflow:hidden;
+    box-shadow:0 0 40px rgba(0,0,0,0.5);
+  }
+  .photo-container img{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* ====== AGE ====== */
+  .age-display{text-align:center;margin-bottom:64px}
+  .age-number{font-size:120px;font-weight:900;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+  .age-label{color:var(--text-secondary);letter-spacing:2px;text-transform:uppercase}
+
+  /* ====== CARDS ====== */
+  .cards-grid{display:flex;flex-direction:column;gap:12px}
+  .pay-card{
+    background:var(--card);border:1px solid var(--border);border-radius:20px;
+    padding:18px 24px;display:flex;align-items:center;gap:16px;cursor:pointer;
+    transition:0.3s cubic-bezier(.175,.885,.32,1.275);backdrop-filter:blur(20px);
+  }
+  .pay-card:hover{transform:translateY(-3px);background:var(--card-hover);border-color:var(--border-hover);box-shadow:0 10px 30px var(--glow)}
+  .pay-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold}
+  .pay-info{flex:1;min-width:0}
+  .pay-name{font-size:15px;font-weight:600;margin-bottom:4px}
+  .pay-network{font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.1);margin-left:8px}
+  .pay-address{font-size:12px;color:var(--text-secondary);word-break:break-all;font-family:monospace}
+  
+  /* Crypto Colors */
+  .usdt-trc{color:#26a17b}.btc{color:#f7931a}.usdt-bnb{color:#f3ba2f}.xrp{color:#23292f;background:#fff !important}.mono{color:#fff}
+
+  .toast{
+    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
+    background:#1e1e23;padding:12px 24px;border-radius:12px;opacity:0;transition:0.4s;z-index:1000;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Выберите способ оплаты</h1>
-    <p class="sub">Нажмите на крипто-валюту, чтобы увидеть адрес для перевода.</p>
-    <div class="grid">
-      <div class="pay-item">
-        <button class="pay" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
-          USDT <span class="badge">BEP20</span>
-        </button>
-        <div class="address-panel">
-          <div class="panel-content">
-            <div class="addr-line">
-              <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
-              <button class="btn copy-btn">Копировать</button>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="pay-item">
-        <button class="pay" data-address="0x4477fea418a0b831e7e6ad9931b47fa1cd54947a">
-          ETH
-        </button>
-        <div class="address-panel">
-          <div class="panel-content">
-            <div class="addr-line">
-              <div class="addr">0x4477fea418a0b831e7e6ad9931b47fa1cd54947a</div>
-              <button class="btn copy-btn">Копировать</button>
-            </div>
-          </div>
-        </div>
-      </div>
+<audio id="bgMusic" loop>
+  <source src="dimka.mp3" type="audio/mpeg">
+</audio>
 
-      <div class="pay-item">
-        <button class="pay" data-address="1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik">
-          BTC
-        </button>
-        <div class="address-panel">
-          <div class="panel-content">
-            <div class="addr-line">
-              <div class="addr">1Le8RJMP141PoRQYkCwkbp8XXAx5vBXhik</div>
-              <button class="btn copy-btn">Копировать</button>
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+<canvas id="confettiCanvas"></canvas>
 
-      <div class="pay-item">
-        <button class="pay" data-address="TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3">
-          USDT <span class="badge">TRC20</span>
-        </button>
-        <div class="address-panel">
-          <div class="panel-content">
-            <div class="addr-line">
-              <div class="addr">TLZ8GYUJA5bLWoAiAAS4Zm8azhqkLXMTW3</div>
-              <button class="btn copy-btn">Копировать</button>
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="wrapper">
+  <section class="hero">
+    <div class="hero-badge">🎉 TODAY IS THE DAY</div>
+    <h1>It's My Birthday!</h1>
+  </section>
 
-      <a href="https://send.monobank.ua/jar/3zABohEr77" class="pay" target="_blank" rel="noopener noreferrer">
-        MonoBank банка
-      </a>
+  <div class="photo-container">
+    <img src="dimon.jpg" alt="Dimon">
+  </div>
+
+  <div class="age-display">
+    <div class="age-number">26</div>
+    <div class="age-label">років виповнилось!</div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="pay-card" onclick="copy('4441 1110 3301 8767', 'Monobank')">
+      <div class="pay-icon mono" style="background: #333">💳</div>
+      <div class="pay-info">
+        <div class="pay-name">Monobank 🇺🇦</div>
+        <div class="pay-address">4441 1110 3301 8767</div>
+      </div>
+    </div>
+
+    <div class="pay-card" onclick="copy('TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc', 'USDT TRC20')">
+      <div class="pay-icon usdt-trc" style="background: rgba(38,161,123,0.1)">₮</div>
+      <div class="pay-info">
+        <div class="pay-name">USDT <span class="pay-network">TRC-20</span></div>
+        <div class="pay-address">TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc</div>
+      </div>
+    </div>
+
+    <div class="pay-card" onclick="copy('bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5', 'Bitcoin')">
+      <div class="pay-icon btc" style="background: rgba(247,147,26,0.1)">₿</div>
+      <div class="pay-info">
+        <div class="pay-name">Bitcoin <span class="pay-network">BTC</span></div>
+        <div class="pay-address">bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5</div>
+      </div>
+    </div>
+
+    <div class="pay-card" onclick="copy('0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b', 'USDT BEP20')">
+      <div class="pay-icon usdt-bnb" style="background: rgba(243,186,47,0.1)">₮</div>
+      <div class="pay-info">
+        <div class="pay-name">USDT <span class="pay-network">BNB / BEP-20</span></div>
+        <div class="pay-address">0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b</div>
+      </div>
+    </div>
+
+    <div class="pay-card" onclick="copy('rf7Qc2jASKkWzgmrkrn6115h7LRqfDMwfJ', 'Ripple')">
+      <div class="pay-icon xrp">✕</div>
+      <div class="pay-info">
+        <div class="pay-name">Ripple <span class="pay-network">XRP</span></div>
+        <div class="pay-address">rf7Qc2jASKkWzgmrkrn6115h7LRqfDMwfJ</div>
+      </div>
     </div>
   </div>
-  
-  <div class="toast" id="toast">Скопировано</div>
-  
-  <script>
-    const toast = document.getElementById('toast');
+</div>
 
-    function showToast(text) {
-      toast.textContent = text;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 1400);
-    }
+<div class="toast" id="toast">✅ Скопійовано!</div>
 
-    async function copyTextToClipboard(text) {
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast('Адрес скопирован');
-      } catch (err) {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.position = "fixed";
-        textArea.style.opacity = "0";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          showToast('Адрес скопирован');
-        } catch (e) {
-          showToast('Ошибка копирования');
-        }
-        document.body.removeChild(textArea);
-      }
-    }
+<script>
+// Музика при першому кліку
+document.addEventListener('click', () => {
+  const audio = document.getElementById('bgMusic');
+  if(audio.paused) audio.play();
+}, { once: true });
 
-    // ИЗМЕНЕНИЕ ДЛЯ iOS: Самый надежный метод - делегирование событий
-    document.addEventListener('click', function(event) {
-        
-        const closeAllPanels = (exception = null) => {
-            document.querySelectorAll('.pay-item.is-open').forEach(item => {
-                if(item !== exception) {
-                    item.classList.remove('is-open');
-                    item.querySelector('.address-panel').classList.remove('open');
-                }
-            });
-        };
+// Копіювання
+function copy(text, name) {
+  navigator.clipboard.writeText(text.replace(/\s/g, ''));
+  const t = document.getElementById('toast');
+  t.textContent = `✅ ${name} скопійовано!`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
 
-        const copyButton = event.target.closest('.copy-btn');
-        if (copyButton) {
-            event.stopPropagation(); // Предотвращаем закрытие панели
-            const address = copyButton.closest('.addr-line').querySelector('.addr').textContent;
-            copyTextToClipboard(address);
-            return;
-        }
+// Конфетті (простий запуск)
+const canvas = document.getElementById('confettiCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize); resize();
 
-        const payButton = event.target.closest('button.pay[data-address]');
-        if (payButton) {
-            const parentItem = payButton.closest('.pay-item');
-            const isCurrentlyOpen = parentItem.classList.contains('is-open');
-            
-            closeAllPanels(parentItem); // Закрыть все, кроме текущего
-            
-            // Переключить состояние текущего элемента
-            parentItem.classList.toggle('is-open');
-            parentItem.querySelector('.address-panel').classList.toggle('open');
-            return;
-        }
-        
-        // Если клик был не по кнопке, закрыть все панели
-        if (!event.target.closest('.pay-item')) {
-            closeAllPanels();
-        }
-    });
+class P {
+  constructor() {
+    this.x = canvas.width/2; this.y = canvas.height/2;
+    this.s = Math.random()*5+2;
+    this.vx = (Math.random()-0.5)*10; this.vy = Math.random()*-15-5;
+    this.op = 1; this.c = `hsl(${Math.random()*360}, 70%, 60%)`;
+  }
+  draw() {
+    this.vy += 0.2; this.x += this.vx; this.y += this.vy; this.op -= 0.01;
+    ctx.globalAlpha = this.op; ctx.fillStyle = this.c;
+    ctx.fillRect(this.x, this.y, this.s, this.s);
+  }
+}
+function loop() {
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+  particles.forEach((p,i) => { p.draw(); if(p.op <= 0) particles.splice(i,1); });
+  requestAnimationFrame(loop);
+}
+loop();
+setInterval(() => { if(particles.length < 50) for(let i=0; i<20; i++) particles.push(new P()); }, 3000);
+</script>
 
-  </script>
 </body>
 </html>
