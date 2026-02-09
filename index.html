@@ -20,15 +20,8 @@
     color:var(--text);
     overflow-x:hidden;
     text-align:center;
-  }
-
-  /* Сховане відео (якщо використовуєш mp4 як аудіо) */
-  #bgVideo {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .bg-blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
@@ -36,12 +29,11 @@
   .blob-1{background:#6e45e2;top:-10%;left:-10%}
   .blob-2{background:#88d3ce;bottom:-10%;right:-10%}
 
-  .wrapper{position:relative;z-index:2;max-width:600px;margin:0 auto;padding:40px 20px}
+  .wrapper{position:relative;z-index:2;max-width:600px;margin:0 auto;padding:60px 20px}
 
-  .hero h1{font-size:3rem;font-weight:900;margin-bottom:30px;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-
-  /* PHOTO */
+  /* PHOTO STYLE */
   .photo-wrap{
+    position: relative;
     width:220px;height:220px;margin:0 auto 30px;
     border-radius:50%;border:3px solid #6e45e2;
     padding:5px;background:var(--bg);
@@ -49,47 +41,58 @@
   }
   .photo-wrap img{
     width:100%;height:100%;border-radius:50%;object-fit:cover;
-    display:block;background:#222; /* фон поки вантажиться фото */
+    display:block;background:#222;
   }
 
-  .age-number{font-size:100px;font-weight:900;line-height:1}
+  .age-number{font-size:100px;font-weight:900;line-height:1;margin-top: 10px;}
   .age-label{text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.5);margin-bottom:50px}
 
   /* CARDS */
-  .cards-grid{display:flex;flex-direction:column;gap:15px}
+  .cards-grid{display:flex;flex-direction:column;gap:12px}
   .pay-card{
     background:var(--card);border:1px solid var(--border);border-radius:18px;
-    padding:15px 20px;display:flex;align-items:center;gap:15px;cursor:pointer;
-    transition:0.3s;backdrop-filter:blur(10px);
+    padding:18px 20px;display:flex;align-items:center;gap:15px;cursor:pointer;
+    transition:0.3s cubic-bezier(.175,.885,.32,1.275);backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
   }
-  .pay-card:hover{transform:translateY(-3px);border-color:#6e45e2;background:rgba(255,255,255,0.08)}
-  .pay-icon{font-size:1.5rem;width:40px}
+  .pay-card:active{transform:scale(0.96)}
+  .pay-icon{font-size:1.5rem;width:40px;display:flex;justify-content:center}
   .pay-info{text-align:left;flex:1}
-  .pay-name{font-weight:700;font-size:0.9rem}
-  .pay-address{font-family:monospace;font-size:0.75rem;color:rgba(255,255,255,0.6);word-break:break-all}
+  .pay-name{font-weight:700;font-size:0.9rem;margin-bottom: 2px}
+  .pay-address{font-family:monospace;font-size:0.7rem;color:rgba(255,255,255,0.5);word-break:break-all}
 
+  /* TOAST */
   .toast{
-    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);
-    background:#6e45e2;padding:10px 25px;border-radius:50px;transition:0.4s;opacity:0;
+    position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);
+    background:#6e45e2;padding:12px 24px;border-radius:50px;transition:0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    opacity:0;z-index:1000;white-space: nowrap;font-weight: 600;
   }
   .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+  /* SOUND BUTTON FOR IOS */
+  #playBtn {
+    position: fixed; top: 20px; right: 20px; z-index: 100;
+    background: rgba(255,255,255,0.1); border: 1px solid var(--border);
+    color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer;
+    font-size: 11px; backdrop-filter: blur(10px);
+  }
 </style>
 </head>
-<body>
+<body onclick="initAudio()">
 
-<video id="bgVideo" loop>
-  <source src="dimka.mp4" type="video/mp4">
-</video>
+<audio id="bgMusic" loop preload="auto">
+  <source src="dimka.mp3" type="audio/mpeg">
+</audio>
+
+<button id="playBtn">🔊 Музика</button>
 
 <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
 
 <div class="wrapper">
-  <div class="hero">
-    <h1>It's My Birthday!</h1>
-  </div>
-
+  <h1 style="font-weight: 900; margin-bottom: 20px;">HAPPY BIRTHDAY!</h1>
+  
   <div class="photo-wrap">
-    <img src="dimon.jpg" alt="Дмитро" onerror="this.src='https://via.placeholder.com/220?text=No+Photo'">
+    <img src="dimon.jpg" alt="Дмитро" onerror="this.src='https://via.placeholder.com/220/222/6e45e2?text=Photo+Missing'">
   </div>
 
   <div class="age-display">
@@ -98,24 +101,24 @@
   </div>
 
   <div class="cards-grid">
-    <div class="pay-card" onclick="copy('4441111033018767', 'Monobank')">
+    <div class="pay-card" onclick="copy('4441 1110 3301 8767', 'Monobank')">
       <div class="pay-icon">💳</div>
       <div class="pay-info">
-        <div class="pay-name">Monobank</div>
+        <div class="pay-name">Monobank 🇺🇦</div>
         <div class="pay-address">4441 1110 3301 8767</div>
       </div>
     </div>
 
     <div class="pay-card" onclick="copy('TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc', 'USDT TRC20')">
-      <div class="pay-icon">₮</div>
+      <div class="pay-icon" style="color:#26a17b">₮</div>
       <div class="pay-info">
-        <div class="pay-name">USDT TRC-20</div>
+        <div class="pay-name">USDT <span style="font-size:10px; opacity:0.6">TRC-20</span></div>
         <div class="pay-address">TCgQcKyG2SwFt8SAxqPaJAwerCqWFPN7yc</div>
       </div>
     </div>
 
     <div class="pay-card" onclick="copy('bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5', 'BTC')">
-      <div class="pay-icon">₿</div>
+      <div class="pay-icon" style="color:#f7931a">₿</div>
       <div class="pay-info">
         <div class="pay-name">Bitcoin</div>
         <div class="pay-address">bc1q6vrsra27led2y980kwj38znpk4dv36vhn7rpy5</div>
@@ -123,9 +126,9 @@
     </div>
 
     <div class="pay-card" onclick="copy('0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b', 'USDT BEP20')">
-      <div class="pay-icon">🟡</div>
+      <div class="pay-icon" style="color:#f3ba2f">🟡</div>
       <div class="pay-info">
-        <div class="pay-name">USDT BEP-20 (BNB)</div>
+        <div class="pay-name">USDT <span style="font-size:10px; opacity:0.6">BEP-20</span></div>
         <div class="pay-address">0xB0D8D344692f5ACBD29d8862618f47b9983cdA1b</div>
       </div>
     </div>
@@ -143,18 +146,45 @@
 <div class="toast" id="toast">✅ Скопійовано!</div>
 
 <script>
-// Запуск mp4 при кліку
-document.addEventListener('click', () => {
-  const video = document.getElementById('bgVideo');
-  if(video.paused) video.play();
-}, { once: true });
+const audio = document.getElementById('bgMusic');
+const playBtn = document.getElementById('playBtn');
+
+// Функція ініціалізації звуку (важливо для iOS)
+function initAudio() {
+  if (audio.paused) {
+    audio.play();
+    playBtn.textContent = "⏸ Пауза";
+  } else {
+    // Якщо ти хочеш, щоб клік працював як перемикач:
+    // audio.pause();
+    // playBtn.textContent = "🔊 Грати";
+  }
+}
+
+// Окремий обробник для кнопки
+playBtn.addEventListener('click', (e) => {
+  e.stopPropagation(); // щоб не спрацював body.onclick
+  if (audio.paused) {
+    audio.play();
+    playBtn.textContent = "⏸ Пауза";
+  } else {
+    audio.pause();
+    playBtn.textContent = "🔊 Грати";
+  }
+});
 
 function copy(text, name) {
-  navigator.clipboard.writeText(text);
-  const t = document.getElementById('toast');
-  t.textContent = `✅ ${name} скопійовано!`;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  // Видаляємо пробіли з номера картки перед копіюванням
+  const cleanText = text.replace(/\s+/g, '');
+  navigator.clipboard.writeText(cleanText).then(() => {
+    const t = document.getElementById('toast');
+    t.textContent = `✅ ${name} скопійовано!`;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  });
+  
+  // Додаткова спроба запустити звук при кліку на картку (для Safari)
+  if (audio.paused) audio.play();
 }
 </script>
 
